@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:flowable="http://flowable.org/bpmn"
+             targetNamespace="com.snow.solution.process">
+
+  <process id="validatePayloadProcess" name="Validate Payload Process" isExecutable="true">
+    <startEvent id="startEvent" />
+    <sequenceFlow sourceRef="startEvent" targetRef="validateServiceTask" />
+
+    <serviceTask id="validateServiceTask" name="Validate Input Data"
+                 flowable:delegateExpression="${bpmVariableValidator}" />
+    <sequenceFlow sourceRef="validateServiceTask" targetRef="endEvent" />
+
+    <endEvent id="endEvent" />
+  </process>
+</definitions>

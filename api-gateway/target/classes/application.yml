@@ -1,0 +1,58 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  # Настройка безопасности и валидации JWT через Keycloak[cite: 5]
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://${KEYCLOAK_HOST:keycloak}:${KEYCLOAK_PORT:8080}/realms/snow-realm
+  cloud:
+    gateway:
+      # Настройка CORS для работы с фронтендом[cite: 5]
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+      # Корректное расположение блока routes (непосредственно под gateway)[cite: 5]
+      routes:
+        # 1. Основной маршрут для API микросервиса process-engine-service[cite: 5]
+        - id: process-engine-service
+          uri: lb://PROCESS-ENGINE-SERVICE
+          predicates:
+            - Path=/api/process/**
+          filters:
+            - StripPrefix=2
+
+        # 2. Маршрут для перенаправления запросов OpenAPI/Swagger спецификации[cite: 5]
+        - id: process-engine-docs
+          uri: lb://PROCESS-ENGINE-SERVICE
+          predicates:
+            - Path=/aggregate/process-engine-service/v3/api-docs
+          filters:
+            - RewritePath=/aggregate/process-engine-service/(?<segment>.*), /${segment}
+
+# Настройка агрегированного Swagger UI на стороне Gateway[cite: 5]
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: Process Engine Service
+        url: /aggregate/process-engine-service/v3/api-docs
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka/
+  instance:
+    prefer-ip-address: true

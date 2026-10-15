@@ -1,0 +1,86 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: snow-postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - snow-net
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.0
+    container_name: snow-keycloak
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak_password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME: "http://keycloak:8082"
+      KC_HOSTNAME_PORT: "8082"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+    ports:
+      - "8082:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - snow-net
+
+  eureka-server:
+    build: ./eureka-server
+    container_name: snow-eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - snow-net
+
+  process-engine-service:
+    build: ./process-engine-service
+    container_name: snow-process-engine
+    ports:
+      - "8081:8081"
+    environment:
+      - EUREKA_HOST=eureka-server
+    depends_on:
+      - eureka-server
+    networks:
+      - snow-net
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: snow-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_HOST=eureka-server
+      - KEYCLOAK_HOST=keycloak
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/snow-realm
+    depends_on:
+      - eureka-server
+      - keycloak
+      - process-engine-service
+    networks:
+      - snow-net
+
+volumes:
+  postgres_data:
+
+networks:
+  snow-net:
+    driver: bridge

@@ -1,0 +1,3 @@
+com/snow/solution/gateway/config/SecurityConfig.class
+com/snow/solution/gateway/ApiGatewayApplication.class
+com/snow/solution/gateway/filter/AuthenticationHeaderFilter.class

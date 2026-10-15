@@ -1,0 +1,3 @@
+/Users/alexsnow/code/SnowSolution/api-gateway/src/main/java/com/snow/solution/gateway/ApiGatewayApplication.java
+/Users/alexsnow/code/SnowSolution/api-gateway/src/main/java/com/snow/solution/gateway/config/SecurityConfig.java
+/Users/alexsnow/code/SnowSolution/api-gateway/src/main/java/com/snow/solution/gateway/filter/AuthenticationHeaderFilter.java
