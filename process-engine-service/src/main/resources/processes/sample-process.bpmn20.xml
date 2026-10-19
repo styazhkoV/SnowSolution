@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:flowable="http://flowable.org/bpmn"
              targetNamespace="http://www.flowable.org/processdef"
              id="definitions">
 
@@ -8,9 +9,30 @@
         <startEvent id="startEvent"/>
         <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="userTask1"/>
 
-        <userTask id="userTask1" name="Review and Approve"/>
-        <sequenceFlow id="flow2" sourceRef="userTask1" targetRef="endEvent"/>
+        <userTask id="userTask1" name="Review and Approve">
+            <extensionElements>
+                <!-- Блок 1: Target Description -->
+                <flowable:property name="req_id" value="REQ-B2B-001"/>
+                <flowable:property name="feature_name" value="Верификация корпоративной заявки"/>
+                <flowable:property name="target_description" value="Проверка и первичное утверждение документов B2B клиента профильным менеджером"/>
 
+                <!-- Блок 2: Functional Requirements -->
+                <flowable:property name="fr_actor" value="Sales Manager"/>
+                <flowable:property name="fr_trigger" value="Поступление новой корпоративной заявки из шлюза"/>
+                <flowable:property name="fr_action_logic" value="Анализ поданных реквизитов, сверка с реестром контрагентов и принятие решения"/>
+                <flowable:property name="fr_expected_result" value="Заявка переведена в статус Approved, сгенерирован системный лог"/>
+                <flowable:property name="fr_data_contract" value="schema-b2b-approval-v1.json"/>
+
+                <!-- Блок 3: Non-Functional Requirements -->
+                <flowable:property name="nfr_sla_ms" value="3000"/>
+                <flowable:property name="nfr_retry_allowed" value="true"/>
+                <flowable:property name="nfr_max_retries" value="3"/>
+                <flowable:property name="nfr_security_level" value="CONFIDENTIAL"/>
+                <flowable:property name="nfr_audit_required" value="true"/>
+            </extensionElements>
+        </userTask>
+
+        <sequenceFlow id="flow2" sourceRef="userTask1" targetRef="endEvent"/>
         <endEvent id="endEvent"/>
     </process>
 </definitions>
