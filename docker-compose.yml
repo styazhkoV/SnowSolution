@@ -62,6 +62,18 @@ services:
     networks:
       - snow-net
 
+  bpmn-validation-service:
+    build: ./bpmn-validation-service
+    container_name: snow-bpmn-validation
+    ports:
+      - "8083:8082"
+    environment:
+      - EUREKA_HOST=eureka-server
+    depends_on:
+      - eureka-server
+    networks:
+      - snow-net
+
   api-gateway:
     build: ./api-gateway
     container_name: snow-gateway
