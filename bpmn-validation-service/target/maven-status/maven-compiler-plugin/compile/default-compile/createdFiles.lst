@@ -1,0 +1,5 @@
+com/snow/solution/validation/ValidationController.class
+com/snow/solution/validation/BpmnValidationApplication.class
+com/snow/solution/validation/BpmnValidationService.class
+com/snow/solution/validation/ValidationResponse.class
+com/snow/solution/validation/ValidationError.class
